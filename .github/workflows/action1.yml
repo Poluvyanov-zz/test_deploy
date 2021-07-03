@@ -71,6 +71,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set tag to env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+        run: echo "RELEASE_VERSION=latest" >> $GITHUB_ENV
       - name: Send webhook for deploy
         run: "curl --silent --show-error --fail -X POST ${{ secrets.DEPLOYMENT_SERVER }} -H 'Authorization: ${{ secrets.DEPLOYMENT_TOKEN }}' -H 'Content-Type: application/json' -d '{\"owner\": \"${{ secrets.DOCKERHUB_USERNAME }}\", \"repository\": \"${{ secrets.DOCKERHUB_USERNAME }}\", \"tag\": \"${{ env.RELEASE_VERSION }}\", \"ports\": {\"49160\": 3000}}'"
