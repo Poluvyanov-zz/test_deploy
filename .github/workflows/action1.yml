@@ -67,7 +67,7 @@ jobs:
   deploy:
     # Если мы успешно собрали контейнер и отправили в registry, то делаем хук деплоймент серверу
     # Попробуем готовый экшен curl из маркетплэйса
-    needs: [build_and_pub]
+    needs: [push_to_Docker_Hub]
     runs-on: ubuntu-latest
     steps:
       - name: Set tag to env
