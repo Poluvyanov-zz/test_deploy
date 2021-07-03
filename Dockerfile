@@ -1,19 +1,28 @@
-FROM node:14
+FROM node:14-alpine as builder
 
-# Create app directory
-WORKDIR /usr/src/app
+ENV NODE_ENV build
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
+USER root
+WORKDIR /home/node
 
-RUN npm install
-# If you are building your code for production
-# RUN npm ci --only=production
+COPY . /home/node
 
-# Bundle app source
-COPY . .
+RUN npm ci \
+    && npm run build
 
-EXPOSE 8080
-CMD [ "node", "server.js" ]
+
+FROM node:14-alpine
+
+ENV NODE_ENV production
+
+USER root
+WORKDIR /home/node
+
+COPY --from=builder /home/node/package*.json /home/node/
+COPY --from=builder /home/node/dist/ /home/node/dist/
+
+RUN npm ci
+
+EXPOSE 3000
+
+CMD ["node", "dist/main"]
