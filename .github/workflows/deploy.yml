@@ -1,0 +1,20 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    # Если мы успешно собрали контейнер и отправили в registry, то делаем хук деплоймент серверу
+    # Попробуем готовый экшен curl из маркетплэйса
+    needs: [push_to_Docker_Hub]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set tag to env
+        run: echo "RELEASE_VERSION=latest" >> $GITHUB_ENV
+      - name: Send webhook for deploy
+        run: "curl --silent --show-error --fail -X POST ${{ secrets.DEPLOYMENT_SERVER }} -H 'Authorization: ${{ secrets.DEPLOYMENT_TOKEN }}' -H 'Content-Type: application/json' -d '{\"owner\": \"${{ secrets.DOCKERHUB_USERNAME }}\", \"repository\": \"${{ secrets.PROJECT_NAME }}\", \"tag\": \"${{ env.RELEASE_VERSION }}\", \"ports\": {\"3000\": 49160}}'"
